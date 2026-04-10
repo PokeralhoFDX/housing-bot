@@ -60,7 +60,7 @@ def monitorar():
 
     while True:
         try:
-            casas = obter_casas() + ["TEST HOUSE £999"]
+            casas = obter_casas()
             novas_casas = []
 
             for casa in casas:
