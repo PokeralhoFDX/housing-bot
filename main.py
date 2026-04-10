@@ -7,23 +7,21 @@ import os
 
 URL = "https://www.mymoveoldham.co.uk/Choice/OLDHAM_PropertyList.aspx"
 
-TELEGRAM_TOKEN = "TEU_TOKEN"
-CHAT_ID = "TEU_CHAT_ID"
-
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
 }
 
 FICHEIRO_ESTADO = "casas_vistas.json"
 
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
-# 📩 Telegram
+
 def enviar_telegram(msg):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     requests.post(url, data={"chat_id": CHAT_ID, "text": msg})
 
 
-# 💾 guardar estado
 def carregar_estado():
     if os.path.exists(FICHEIRO_ESTADO):
         with open(FICHEIRO_ESTADO, "r") as f:
@@ -36,21 +34,17 @@ def guardar_estado(ids):
         json.dump(list(ids), f)
 
 
-# 🧠 gerar ID único para cada casa
 def gerar_id(texto):
     return hashlib.md5(texto.encode()).hexdigest()
 
 
-# 🔍 extrair casas (versão genérica que funciona com este site)
 def obter_casas():
     response = requests.get(URL, headers=HEADERS)
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # procurar blocos com preços (forma genérica)
     textos = soup.get_text(separator="\n").split("\n")
 
     casas = []
-
     for linha in textos:
         linha = linha.strip()
         if "£" in linha and len(linha) > 10:
@@ -59,9 +53,8 @@ def obter_casas():
     return casas
 
 
-# 🔁 monitorização
 def monitorar():
-    print("A monitorizar novas casas...")
+    print("A monitorizar casas...")
 
     vistos = carregar_estado()
 
@@ -85,7 +78,7 @@ def monitorar():
                     msg += f"- {casa}\n"
 
                 enviar_telegram(msg)
-                print(f"{len(novas_casas)} novas casas enviadas!")
+                print(f"{len(novas_casas)} novas casas!")
 
             vistos = vistos.union(novos_ids)
             guardar_estado(vistos)
@@ -93,7 +86,7 @@ def monitorar():
         except Exception as e:
             print("Erro:", e)
 
-        time.sleep(180)  # verifica a cada 3 minutos
+        time.sleep(180)
 
 
 if __name__ == "__main__":
