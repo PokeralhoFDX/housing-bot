@@ -90,4 +90,5 @@ def monitorar():
 
 
 if __name__ == "__main__":
+    enviar_telegram("✅ Bot is online and working!")
     monitorar()
