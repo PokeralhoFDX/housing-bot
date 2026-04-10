@@ -86,7 +86,7 @@ def monitorar():
         except Exception as e:
             print("Erro:", e)
 
-        time.sleep(180)
+        time.sleep(300)
 
 
 if __name__ == "__main__":
